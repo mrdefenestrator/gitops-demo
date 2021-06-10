@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -eu -o pipefail
+
+k port-forward -n monitoring service/kube-prometheus-stack-grafana 8080:80
