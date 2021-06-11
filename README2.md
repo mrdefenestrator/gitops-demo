@@ -1,20 +1,16 @@
 # filewcount in Kubernetes with GitOps
 
-An implementation of the [filewcount](https://hub.docker.com/r/bldrtech/filewcount) Docker container in a Kubernetes cluster with deployment via [GitOps](https://www.weave.works/technologies/gitops/) via [Flux V2](https://fluxcd.io/docs/).  This repo showcases the orchestration of the filewcount workload, monitoring, and management in a Kubernetes cluster provides by Kind (Kubernetes in Docker).
+An implementation of the [filewcount](https://hub.docker.com/r/bldrtech/filewcount) Docker container in a Kubernetes cluster with deployment via [GitOps](https://www.weave.works/technologies/gitops/) via [Flux V2](https://fluxcd.io/docs/).  This repo showcases the orchestration of the filewcount workload, monitoring, and management in a Kubernetes cluster provides by Kind (Kubernetes in Docker).  To see how this implementation could be improved and expanded upon, please see the *Work Remaining* section below.
 
 ## Environment
 
-- `GITHUB_TOKEN` is a GitHub Access Token with git repo read/write permissions to the homework repo.
-
-
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
+- `GITHUB_TOKEN` is a GitHub Access Token with git repo read/write permissions to the homework repo.  This is used to create the GitOps sync between the Kubernetes cluster and the repo.
 
 ## Setting Up
 
-Bootstrapping of the environment and deployment of the filewcount workload are accomplished by running the
+Bootstrapping of the environment and deployment of the filewcount workload are accomplished by running the scripts provided in the root directory of the repo.  The bootstrap script creates the Kind Kubernetes cluster and starts the GitOps process by installing and configuring Flux on the cluster.  Flux will then sync the Kubernetes manifests in the git repo to the cluster, and the filewcount workload and associated management tools and infrastructure will be installed and configured.
 
-Note: this script is intended to run on macOS and Linux machines
+**Note**: this script is intended to run on macOS and Linux machines
 
 ```bash
 GITHUB_TOKEN={YOUR_TOKEN_HERE} ./bootstrap-kind
@@ -22,10 +18,11 @@ GITHUB_TOKEN={YOUR_TOKEN_HERE} ./bootstrap-kind
 
 ## Tearing Down
 
+Tearing down the environment simply deletes the Kind Kubernetes cluster.
+
 ```bash
 ./teardown-kind
 ```
-
 
 ## Upgrades and Management
 
@@ -35,30 +32,41 @@ This system uses GitOps for deployment of manifests to Kubernetes via a synchron
 
 #### Resource Creation
 
+Kubernetes resources may be created by committing the appropriate Kubernetes manifest to the repo and allowing the sync process to complete.
+
 ```bash
-echo <<<EOF
+cat << EOF > ./kube/kustomize/sync-example.yaml
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
   name: sync-example
-EOF > ./kube/kustomize/sync-example.yaml
-git add ./kube/kustomize/sync-example.yaml
-git commit -m 'create example namespace'
-git push -u origin HEAD
-kubectl get namespaces --watch
-# You should see the 'sync-example' namespace created when reconciliation is complete
+EOF
+git add ./kube/kustomize/sync-example.yaml && \
+git commit -m 'create example namespace' && \
+git push -u origin HEAD && \
+echo "You should see the 'sync-example' namespace created when reconciliation is complete"
+watch -n 1 'kubectl get namespaces'
 ```
 
 #### Resource Deletion
 
+Kubernetes resources may be deleted by committing the deletion of the appropriate Kubernetes manifest to the repo and allowing the sync process to complete.
+
 ```bash
-rm ./kube/kustomize/sync-example.yaml
-git add ./kube/kustomize/sync-example.yaml
-git commit -m 'delete example namespace'
-git push -u origin HEAD
-kubectl get namespaces --watch
-# You should see the 'sync-example' namespace deleted when reconciliation is complete
+rm ./kube/kustomize/sync-example.yaml && \
+git add ./kube/kustomize/sync-example.yaml && \
+git commit -m 'delete example namespace' && \
+git push -u origin HEAD && \
+echo "You should see the 'sync-example' namespace deleted when reconciliation is complete"
+watch -n 1 'kubectl get namespaces'
+```
+
+#### Workload Rolling Upgrade
+
+Kubernetes resources may be updated by committing a change of the appropriate Kubernetes manifest to the repo and allowing the sync process to complete.
+
+```bash
 ```
 
 ## Monitoring
