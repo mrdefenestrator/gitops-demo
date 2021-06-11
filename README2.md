@@ -1,4 +1,22 @@
+# filewcount in Kubernetes
+
+## Setting Up
+
+- bootstrapping
+
+## Monitoring Workload
+
+- metrics
+- logs
+- events
+
+## Upgrading Workload
+
+- gitops
+
 ## Work Remaining
+
+- Implement Semantic-Release to automatically version in pipeline so that releases of filewcount could be deployed to other Kubernetes clusters
 
 ### Security
 
