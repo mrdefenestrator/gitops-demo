@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -eu -o pipefail
+
+flux bootstrap github \
+  --branch=dev \
+  --owner threatxlabs \
+  --path=kube/kustomize \
+  --repository devops-hw-mg \
+  --token-auth
