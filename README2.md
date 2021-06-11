@@ -1,5 +1,11 @@
 # filewcount in Kubernetes
 
+## Environment
+
+- `GITHUB_TOKEN` is a GitHub Access Token with git repo read/write permissions
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+
 ## Setting Up
 
 - bootstrapping
