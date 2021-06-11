@@ -8,7 +8,7 @@ spec:
   gitImplementation: go-git
   interval: 30m0s
   ref:
-    branch: main
+    branch: master
   timeout: 20s
   url: https://github.com/kubernetes-sigs/metrics-server
 ---
