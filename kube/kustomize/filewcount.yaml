@@ -67,7 +67,7 @@ spec:
     app: filewcount
   type: ClusterIP
 ---
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: filewcount
@@ -78,5 +78,7 @@ spec:
       paths:
       - path: /
         backend:
-          serviceName: filewcount
-          servicePort: 80-80
+          service:
+            name: filewcount
+            port:
+              name: 80-80
