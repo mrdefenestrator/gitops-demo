@@ -2,7 +2,7 @@
 apiVersion: source.toolkit.fluxcd.io/v1beta1
 kind: GitRepository
 metadata:
-  name: monitoring
+  name: flux2
   namespace: flux-system
 spec:
   gitImplementation: go-git
@@ -31,5 +31,5 @@ spec:
   prune: true
   sourceRef:
     kind: GitRepository
-    name: monitoring
+    name: flux2
   timeout: 2m0s
