@@ -19,6 +19,12 @@ spec:
   chart:
     spec:
       chart: ingress-nginx
+      install:
+        remediation:
+          retries: -1
+      upgrade:
+        remediation:
+          retries: -1
       interval: 1m
       sourceRef:
         kind: HelmRepository
