@@ -27,7 +27,7 @@ spec:
   #   name: kube-prometheus-stack-grafana
   #   namespace: monitoring
   interval: 1h0m0s
-  path: ./metrics-server/manifests/release
+  path: ./manifests/release
   prune: true
   sourceRef:
     kind: GitRepository
