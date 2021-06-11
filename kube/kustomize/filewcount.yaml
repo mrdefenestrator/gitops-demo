@@ -16,17 +16,24 @@ spec:
   selector:
     matchLabels:
       app: filewcount
-  strategy: {}
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: filewcount
     spec:
       containers:
       - image: bldrtech/filewcount
         name: filewcount
-        resources: {}
+        resources:
+          limits:
+            cpu: 800m
+            memory: 100Mib
+          requests:
+            cpu: 100m
+            memory: 20Mib
 ---
 apiVersion: v1
 kind: Service
