@@ -59,7 +59,7 @@ metadata:
   namespace: filewcount
 spec:
   ports:
-  - name: 80-80
+  - name: http
     port: 80
     protocol: TCP
     targetPort: 80
@@ -82,4 +82,4 @@ spec:
           service:
             name: filewcount
             port:
-              name: 80-80
+              name: http
