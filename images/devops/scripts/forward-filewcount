@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -eu -o pipefail
+
+kubectl port-forward -n filewcount svc/filewcount 8080:80
