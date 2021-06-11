@@ -12,7 +12,7 @@ metadata:
   name: filewcount
   namespace: filewcount
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: filewcount
@@ -27,3 +27,26 @@ spec:
       - image: bldrtech/filewcount
         name: filewcount
         resources: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: filewcount
+  name: filewcount
+  namespace: filewcount
+spec:
+  ports:
+  - name: 80-80
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: filewcount
+  type: ClusterIP
+---
+# HorizontalPodAutoScaler
+# Service
+# Ingress
+# Ingress Controller
+# PodMonitor?
