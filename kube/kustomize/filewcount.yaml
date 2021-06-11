@@ -65,20 +65,20 @@ spec:
   selector:
     app: filewcount
   type: ClusterIP
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: filewcount
-  namespace: filewcount
-spec:
-  rules:
-  - http:
-      paths:
-      - path: /
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: filewcount
-            port:
-              name: http
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: filewcount
+#   namespace: filewcount
+# spec:
+#   rules:
+#   - http:
+#       paths:
+#       - path: /
+#         pathType: ImplementationSpecific
+#         backend:
+#           service:
+#             name: filewcount
+#             port:
+#               name: http
