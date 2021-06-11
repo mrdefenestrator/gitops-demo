@@ -22,6 +22,7 @@
 
 - Implement linting and resource scanning of K8s manifests in CI pipeline
 - Update credentials for Grafana to use non-default
+- Implement TLS ingress and cert-manager for auto-provisioning of certificates
 
 ### Infrastructure
 
