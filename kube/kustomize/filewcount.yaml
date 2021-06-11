@@ -48,7 +48,6 @@ spec:
   scaleTargetRef:
     kind: Deployment
     name: filewcount
-  targetCPUUtilizationPercentage: 50
 ---
 apiVersion: v1
 kind: Service
