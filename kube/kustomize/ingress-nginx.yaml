@@ -33,7 +33,6 @@ spec:
     remediation:
       retries: -1
   interval: 5m
-  targetNamespace: ingress-nginx
   upgrade:
     remediation:
       retries: -1

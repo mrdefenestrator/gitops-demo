@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: filewcount
+  name: monitoring
 ---
 apiVersion: source.toolkit.fluxcd.io/v1beta1
 kind: GitRepository
