@@ -19,18 +19,18 @@ spec:
   chart:
     spec:
       chart: ingress-nginx
-      install:
-        remediation:
-          retries: -1
-      upgrade:
-        remediation:
-          retries: -1
       interval: 1m
       sourceRef:
         kind: HelmRepository
         name: ingress-nginx
         namespace: flux-system
       version: '*'
+  install:
+    remediation:
+      retries: -1
   interval: 5m
   targetNamespace: ingress-nginx
+  upgrade:
+    remediation:
+      retries: -1
   values: {}
