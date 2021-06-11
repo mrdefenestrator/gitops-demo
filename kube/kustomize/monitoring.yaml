@@ -38,3 +38,17 @@ spec:
     kind: GitRepository
     name: flux2
   timeout: 2m0s
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+kind: Kustomization
+metadata:
+  name: monitoring-config
+  namespace: monitoring
+spec:
+  force: false
+  interval: 1h0m0s
+  path: ./manifests/monitoring/monitoring-config
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux2
