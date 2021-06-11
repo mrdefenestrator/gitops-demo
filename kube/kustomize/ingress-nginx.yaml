@@ -36,4 +36,8 @@ spec:
   upgrade:
     remediation:
       retries: -1
-  values: {}
+  values:
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
