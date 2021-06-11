@@ -1,9 +1,14 @@
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: filewcount
+---
 apiVersion: source.toolkit.fluxcd.io/v1beta1
 kind: GitRepository
 metadata:
   name: flux2
-  namespace: flux-system
+  namespace: monitoring
 spec:
   gitImplementation: go-git
   interval: 30m0s
@@ -16,7 +21,7 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
 kind: Kustomization
 metadata:
   name: monitoring-stack
-  namespace: flux-system
+  namespace: monitoring
 spec:
   force: false
   healthChecks:
