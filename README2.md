@@ -37,6 +37,7 @@
 
 ### Monitoring
 
+- Implement readiness and liveness probes for filewcount workload
 - Implement log scraping any analysis (elastic stack?)
 - Implement Kubernetes Dashboard
 
