@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -eu -o pipefail
+
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  brew install kind
+else
+  curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.11.0/kind-linux-amd64
+  chmod +x ./kind
+  export PATH="${PATH}:$(pwd)"
+fi
+
+if ! kind get clusters | grep threatx; then
+  kind create cluster --name threatx
+fi
+
+./images/devops/scripts/flux-up

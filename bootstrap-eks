@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -eu -o pipefail
+
+eksctl create cluster
+
+docker build -t devops images/devops
+docker run -it --env GITHUB_TOKEN devops -- flux-up
