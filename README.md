@@ -108,9 +108,10 @@ echo "You should see the a rolling update of the filewcount pods"
 kubectl get pods --namespace filewcount --watch
 ```
 
-## Monitoring
+## Observability
 
-There are multiple mechanisms for
+There are multiple mechanisms for observability that have been provided in this implementation.  They are detailed below.
+
 ### Metrics
 
 Performance metrics (cpu and memory usage) for the Pods and Nodes in the cluster are collected by `metrics-server` and are consumed by HorizontalPodAutoscalers for scaling workloads as well as made available via the Kubernetes cli:
