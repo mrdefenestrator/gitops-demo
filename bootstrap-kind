@@ -16,4 +16,4 @@ if ! kind get clusters | grep threatx; then
   kind create cluster --name threatx
 fi
 
-./images/devops/scripts/flux-up
+./flux-up

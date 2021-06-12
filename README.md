@@ -4,7 +4,7 @@ This repo is an implementation of the [filewcount](https://hub.docker.com/r/bldr
 
 ## Workload architecture
 
-The filewcount workload runs in a Kind Kubernetes cluster as a Deployment.  This Deployment has multiple replica Pods to enable rolling upgrades with zero downtime.  In addition, the Deployment is paired with a HorizontalPodAutoscaler which can automatically scale the number of Pods according to the load on the existing Pods.  A Service aggregates access to all of the Pods behind a single endpoint.  This Service is best accessed (at this time) by port forwarding the Service to the host machine using the `./images/devops/scripts/forward-filewcount` script.  Users may then access the filewcount application at [http://localhost:8080](http://localhost:8080)
+The filewcount workload runs in a Kind Kubernetes cluster as a Deployment.  This Deployment has multiple replica Pods to enable rolling upgrades with zero downtime.  In addition, the Deployment is paired with a HorizontalPodAutoscaler which can automatically scale the number of Pods according to the load on the existing Pods.  A Service aggregates access to all of the Pods behind a single endpoint.  This Service is best accessed (at this time) by port forwarding the Service to the host machine using the `./forward-filewcount` script.  Users may then access the filewcount application at [http://localhost:8080](http://localhost:8080)
 
 ## Environment
 
@@ -31,7 +31,7 @@ Tearing down the environment simply deletes the Kind Kubernetes cluster.
 ## Accessing filewcount
 
 ```bash
-./images/devops/scripts/forward-filewcount &
+./forward-filewcount &
 sleep 3 && \
 curl -v http://localhost:8080
 ```
@@ -121,7 +121,7 @@ kubectl top pods -A
 Metrics in the system are scraped from Nodes, Pods, Services, and `metrics-server` by prometheus and made available for consumption by Grafana
 
 ```bash
-./images/devops/scripts/forward-grafana &
+./forward-grafana &
 echo 'username: admin' && \
 echo 'password: prom-operator' && \
 sleep 3 && \
