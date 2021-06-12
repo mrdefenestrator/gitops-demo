@@ -39,4 +39,4 @@ spec:
   values:
     extraArgs:
       - --enable-insecure-login
-    protocolHttp: false
+    protocolHttp: true
