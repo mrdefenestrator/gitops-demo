@@ -1,44 +1,128 @@
-# ThreatX - DevOps Homework Project
-## Introduction 
-As a DevOps Engineer at ThreatX you will be responsible for the care and feeding of the infrastructure-as-code that hosts our services. To simulate that type of role, we invite you to consider the situation of deploying a new sample web service through automation. 
+# filewcount in Kubernetes with GitOps
 
-## Context
-We are a Linux shop and run in many providers such as AWS, IBM, INAP, and more. Our services are primarily written in Rust, and deployed with Python. We currently use tools like Docker, Jenkins, Consul, Nginx and Ansible to build and deploy. You are not required to use these technologies in your submission. We’ll do our best to evaluate whatever you provide. Of course the easier it is for us to run your submission, the more likely we are to be able to properly evaluate it. 
+This repo is an implementation of the [filewcount](https://hub.docker.com/r/bldrtech/filewcount) Docker container in a Kubernetes cluster with deployment via [GitOps](https://www.weave.works/technologies/gitops/) using [Flux V2](https://fluxcd.io/docs/).  This showcases the orchestration of the filewcount workload, monitoring, and management in a Kubernetes cluster provides by Kind (Kubernetes in Docker).  The GitOps deployment architecture was chosen for its declarative nature and relative lack of local dependencies   To see how this implementation could be improved and expanded upon, please see the *Work Remaining* section below.
 
-## Problem 
-Using your preferred technologies, please provide a reference infrastructure-as-code of the sample application (`bldrtech/filewcount`). The focus of this exercise is on the orchestration necessary for deploying the sample application **as a service** in whatever means you define with an eye on **key properties**:
+## Workload architecture
 
-* Load Balancing
-* Observability
-* Service Upgrade Strategy
-* Testing and Documentation
+The filewcount workload runs in a Kind Kubernetes cluster as a Deployment.  This Deployment has multiple replica Pods to enable rolling upgrades with zero downtime.  In addition, the Deployment is paired with a HorizontalPodAutoscaler which can automatically scale the number of Pods according to the load on the existing Pods.  A Service aggregates access to all of the Pods behind a single endpoint.  This Service is best accessed (at this time) by port forwarding the Service to the host machine using the `./images/devops/scripts/forward-filewcount` script.  Users may then access the filewcount application at [http://localhost:8080](http://localhost:8080)
 
-## Deliverables 
-We ask for these deliverables (committed to a new branch in this repository, submit PR when ready for review): 
-* Your implementation of the sample application as a service (a.k.a. "infrastructure as code")
-* Documentation on the service, including how we can actually setup, test, and upgrade the service
-* An overview document describing your submission. It may include questions you would have asked, assumptions that you needed to make, and reasoning behind your decisions.
+## Environment
 
+- `GITHUB_TOKEN` is a GitHub Access Token with git repo read/write permissions to the homework repo.  This is used to create the GitOps sync between the Kubernetes cluster and the repo.
 
-## FAQs
+## Setting Up
 
-### How should \<insert requirement> work?
-If you have any questions, please don’t hesitate to ask. In software engineering, requirements gathering can be just as important as the coding itself.
+Bootstrapping of the environment and deployment of the filewcount workload are accomplished by running the scripts provided in the root directory of the repo.  The bootstrap script creates the Kind Kubernetes cluster and starts the GitOps process by installing and configuring Flux on the cluster.  Flux will then sync the Kubernetes manifests in the git repo to the cluster, and the filewcount workload and associated management tools and infrastructure will be installed and configured.
 
-However, we understand that you have limited time for this homework project and you may need to make decisions quickly on nights and weekends. If questions arise, or you feel that information is missing, and for whatever reason you are not able to clarify the requirements effectively, please make your own logical assumptions and decisions in order to move on with the project. You can explain those design details and thought processes in the overview document included with the submission.
+**Note**: all scripts are intended to run on macOS and Linux
 
-### How much time should I spend? 
-#### Short answer: 
-Spend a few hours getting something working and turn it in. If not satisfied with it yet, spend an extra few hours, and then turn it in. 
+```bash
+GITHUB_TOKEN={YOUR_TOKEN_HERE} ./bootstrap-kind
+```
 
-#### Longer answer: 
-Here at ThreatX, we’re trying to do what makes sense, instead of what’s always been done before. One of the things that makes sense to us is seeing what you can do, not just assessing what you can talk about. So, make the most of this opportunity. It’s a great way to show off what you’re good at! 
+## Tearing Down
 
-Your submission is a starting point for a richer conversation about what you can do, how you like to do it, and how your talents can be best put to use at ThreatX.
+Tearing down the environment simply deletes the Kind Kubernetes cluster.
 
-If that seems too big an ask it does not automatically mean that you are not qualified to work with us. Please, feel free to narrow the scope, or spend a bit more time iterating on your solution. We will ask you to set a deadline that you can meet while working at your own pace. 
+```bash
+./teardown-kind
+```
 
-Cheat code: Mostly, people do this work in a couple of evenings, or over a weekend. 
+## Accessing filewcount
 
+```bash
+./images/devops/scripts/forward-filewcount &
+sleep 3 && \
+curl -v http://localhost:8080
+```
 
-Good luck, and have fun! 
+## Upgrades and Management
+
+This system uses GitOps for deployment of manifests to Kubernetes via a synchronization provided by Flux.  All manifests that the system relies on are continuously synced with the cluster according to their respective schedules. This synchronization means that all creation, deletion, and updates of resources in Kubernetes are controlled by the contents of this git repo.  By perfoming the desired changes locally, and then either pushing (if using trunk-based development) or creating and merging a pull request (if using github flow or similar), the flux operators in the cluster will automatically update the contents of the cluster after the git branch has been updated.
+
+### Examples
+
+#### Resource Creation
+
+Kubernetes resources may be created by committing the appropriate Kubernetes manifest to the repo and allowing the sync process to complete.
+
+```bash
+cat << EOF > ./kube/kustomize/sync-example.yaml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sync-example
+EOF
+git add ./kube/kustomize/sync-example.yaml && \
+git commit -m 'create example namespace' && \
+git push -u origin HEAD && \
+echo "You should see the 'sync-example' namespace created when reconciliation is complete"
+watch -n 1 'kubectl get namespaces'
+```
+
+#### Resource Deletion
+
+Kubernetes resources may be deleted by committing the deletion of the appropriate Kubernetes manifest to the repo and allowing the sync process to complete.
+
+```bash
+rm ./kube/kustomize/sync-example.yaml && \
+git add ./kube/kustomize/sync-example.yaml && \
+git commit -m 'delete example namespace' && \
+git push -u origin HEAD && \
+echo "You should see the 'sync-example' namespace deleted when reconciliation is complete"
+watch -n 1 'kubectl get namespaces'
+```
+
+#### Workload Rolling Upgrade
+
+Kubernetes resources may be updated by committing a change of the appropriate Kubernetes manifest to the repo and allowing the sync process to complete.
+
+```bash
+```
+
+## Monitoring
+
+- metrics
+- logs
+- events
+
+## Testing
+
+Load testing was conducted using the `ab` utility to perform a large volume of concurrent requests against the filewcount application.  The particular test profile used can be executed with the `load-test` script.  During the execution of this script, the correct operation of the HorizontalPodAutoscaler was observed, automatically scaling the number of filewcount Pods according to the defined parameters.  The results of the load test were used to tune the Pod resource requests (which are used by Kubernetes for scheduling Pods to Nodes) and resource limits (which are used by Kubernetes to protect access to resources by other Pods).
+
+## Work Remaining
+
+It is acknowledged that this implementation is not completely representative of a production capable system in the following ways:
+
+1. Kind is a Kubernetes distribution that is best used for rapid development of Kubernetes workloads and is not production-ready. Given additional time, the Kind cluster could be replaced with an AWS EKS cluster.
+2. Kind, in its use as a local development cluster is not suited to setup of ingress on a domain and generation and installation of a TLS certificate for this ingress.  Once transitioned to AWS EKS, implementation of ingress using an AWS ELB and automatic provisioning of a TLS certificate via cert-manager would be straightforward.
+3. The stateful portions of the implementation, chiefly the volumes backing the prometheus instance in the monitoring namespace, have no persistence or backup mechanism to ensure that data is not lost when the cluster is recreated or if errors occur.
+
+A rough to-do list follows:
+
+### Security
+
+- Implement linting and resource scanning of K8s manifests in CI pipeline
+- Update credentials for Grafana to use non-default
+- Implement TLS ingress and cert-manager for auto-provisioning of certificates
+- Implement in-cluster policy framework like open-policy-agent or kyverno to ensure operational security and correctness of cluster and workload
+
+### Infrastructure
+
+- Demonstrate bootstrapping to AWS EKS cluster instead of Kind
+- Demonstrate ingress controller binding to AWS ELB
+
+### Monitoring
+
+- Implement readiness and liveness probes for filewcount Pods
+- Implement log scraping and analysis (elastic stack?)
+- Implement alerting from any/all sources (metrics, logs, events)
+- Implement Kubernetes Dashboard
+
+### Scalability
+
+- Implement cluster-autoscaler to automatically increase number of nodes in the cluster according to Kubernetes scheduling needs
+- Implement metrics on filewcount workload, to get detailed insight into application performance
+- Implement prometheus adapter to support custom metrics of workload (instead of cpu and memory metrics which are available for all pods)
+- Update HorizontalPodAutoscaler to use the workload's custom metrics for more accurate and efficient scaling
