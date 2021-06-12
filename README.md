@@ -30,10 +30,12 @@ Tearing down the environment simply deletes the Kind Kubernetes cluster.
 
 ## Accessing filewcount
 
+As ingress has not been provided in this implementation, the port that the filewcount Service listens on must be forwarded to the host machine, then the filewcount application may be accessed at [http://localhost:8080](http://localhost:8080)
+
 ```bash
 ./forward-filewcount &
 sleep 3 && \
-curl -v http://localhost:8080
+open http://localhost:8080
 ```
 
 ## Upgrades and Management
