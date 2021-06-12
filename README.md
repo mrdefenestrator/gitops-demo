@@ -82,7 +82,7 @@ Kubernetes resources may be updated by committing a change of the appropriate Ku
 
 ```bash
 cat ./kube/kustomize/filewcount.yaml | \
-yq -r '.spec.template.spec.containers[0].image = "bldrtech/filewcount:2.0"' > \
+sed -e 's/filewcount:.*/filewcount:2.0/' > \
 ./kube/kustomize/filewcount-new.yaml && \
 mv ./kube/kustomize/filewcount-new.yaml ./kube/kustomize/filewcount.yaml
 git add ./kube/kustomize/filewcount.yaml && \
@@ -96,7 +96,7 @@ kubectl get pods --namespace filewcount --watch
 
 ```bash
 cat ./kube/kustomize/filewcount.yaml | \
-yq -r '.spec.template.spec.containers[0].image = "bldrtech/filewcount:1.0"' > \
+sed -e 's/filewcount:.*/filewcount:1.0/' > \
 ./kube/kustomize/filewcount-new.yaml && \
 mv ./kube/kustomize/filewcount-new.yaml ./kube/kustomize/filewcount.yaml
 git add ./kube/kustomize/filewcount.yaml && \
