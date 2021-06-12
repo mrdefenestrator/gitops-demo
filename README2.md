@@ -1,6 +1,6 @@
 # filewcount in Kubernetes with GitOps
 
-This repo is an implementation of the [filewcount](https://hub.docker.com/r/bldrtech/filewcount) Docker container in a Kubernetes cluster with deployment via [GitOps](https://www.weave.works/technologies/gitops/) via [Flux V2](https://fluxcd.io/docs/).  This showcases the orchestration of the filewcount workload, monitoring, and management in a Kubernetes cluster provides by Kind (Kubernetes in Docker).  To see how this implementation could be improved and expanded upon, please see the *Work Remaining* section below.
+This repo is an implementation of the [filewcount](https://hub.docker.com/r/bldrtech/filewcount) Docker container in a Kubernetes cluster with deployment via [GitOps](https://www.weave.works/technologies/gitops/) using [Flux V2](https://fluxcd.io/docs/).  This showcases the orchestration of the filewcount workload, monitoring, and management in a Kubernetes cluster provides by Kind (Kubernetes in Docker).  To see how this implementation could be improved and expanded upon, please see the *Work Remaining* section below.
 
 ## Workload architecture
 
@@ -14,7 +14,7 @@ The filewcount workload runs in a Kind Kubernetes cluster as a Deployment.  This
 
 Bootstrapping of the environment and deployment of the filewcount workload are accomplished by running the scripts provided in the root directory of the repo.  The bootstrap script creates the Kind Kubernetes cluster and starts the GitOps process by installing and configuring Flux on the cluster.  Flux will then sync the Kubernetes manifests in the git repo to the cluster, and the filewcount workload and associated management tools and infrastructure will be installed and configured.
 
-**Note**: this script is intended to run on macOS and Linux machines
+**Note**: all scripts are intended to run on macOS and Linux
 
 ```bash
 GITHUB_TOKEN={YOUR_TOKEN_HERE} ./bootstrap-kind
@@ -89,14 +89,14 @@ Kubernetes resources may be updated by committing a change of the appropriate Ku
 
 ## Testing
 
-Load testing was performed using the `ab` utility to perform a large volume of concurrent requests against the filewcount application.  The particular test profile can be executed with the `load-test` script.  During the execution of this script, the correct operation of the HorizontalPodAutoscaler was observed, automatically scaling the number of filewcount Pods according to the defined parameters.  The results of the load test were used to tune the Pod resource requests (which are used by Kubernetes for scheduling Pods to Nodes) and resource limits (which are used by Kubernetes to protect access to resources by other Pods).
+Load testing was conducted using the `ab` utility to perform a large volume of concurrent requests against the filewcount application.  The particular test profile used can be executed with the `load-test` script.  During the execution of this script, the correct operation of the HorizontalPodAutoscaler was observed, automatically scaling the number of filewcount Pods according to the defined parameters.  The results of the load test were used to tune the Pod resource requests (which are used by Kubernetes for scheduling Pods to Nodes) and resource limits (which are used by Kubernetes to protect access to resources by other Pods).
 
 ## Work Remaining
 
 It is acknowledged that this implementation is not completely representative of a production capable system in the following ways:
 
-1. Kind is a Kubernetes distribution that is best used for rapid development of Kubernetes workloads and is not production-ready, given additional time, the Kind cluster could be replaced with an AWS EKS cluster
-2. Kind, in its use as a local development cluster is not suited to setup of ingress on a domain and generation and installation of a TLS certificate for this ingress.  Once transitioned to AWS EKS, implementation of ingress and automatic provisioning of a TLS certificate via cert-manager would be straightforward.
+1. Kind is a Kubernetes distribution that is best used for rapid development of Kubernetes workloads and is not production-ready. Given additional time, the Kind cluster could be replaced with an AWS EKS cluster.
+2. Kind, in its use as a local development cluster is not suited to setup of ingress on a domain and generation and installation of a TLS certificate for this ingress.  Once transitioned to AWS EKS, implementation of ingress using an AWS ELB and automatic provisioning of a TLS certificate via cert-manager would be straightforward.
 3. The stateful portions of the implementation, chiefly the volumes backing the prometheus instance in the monitoring namespace, have no persistence or backup mechanism to ensure that data is not lost when the cluster is recreated or if errors occur.
 
 A rough to-do list follows:
@@ -110,18 +110,19 @@ A rough to-do list follows:
 
 ### Infrastructure
 
-- Demonstrate bootstrapping to AWS EKS cluster rather than just Kind
+- Demonstrate bootstrapping to AWS EKS cluster instead of Kind
 - Demonstrate ingress controller binding to AWS ELB
 
 ### Monitoring
 
-- Implement readiness and liveness probes for filewcount workload
-- Implement log scraping any analysis (elastic stack?)
+- Implement readiness and liveness probes for filewcount Pods
+- Implement log scraping and analysis (elastic stack?)
+- Implement alerting from any/all sources (metrics, logs, events)
 - Implement Kubernetes Dashboard
 
 ### Scalability
 
-- cluster-autoscaler implementation
-- Implement metrics on filewcount workload
-- Implement prometheus adapter to support custom metrics
-- Update HorizontalPodAutoscaler to use custom metrics
+- Implement cluster-autoscaler to automatically increase number of nodes in the cluster according to Kubernetes scheduling needs
+- Implement metrics on filewcount workload, to get detailed insight into application performance
+- Implement prometheus adapter to support custom metrics of workload (instead of cpu and memory metrics which are available for all pods)
+- Update HorizontalPodAutoscaler to use the workload's custom metrics for more accurate and efficient scaling
