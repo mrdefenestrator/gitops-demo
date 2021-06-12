@@ -58,7 +58,7 @@ git add ./kube/kustomize/sync-example.yaml && \
 git commit -m 'create example namespace' && \
 git push -u origin HEAD && \
 echo "You should see the 'sync-example' namespace created when reconciliation is complete"
-watch -n 1 -d 'kubectl get namespaces'
+kubectl get namespaces --watch
 ```
 
 #### Resource Deletion
@@ -71,23 +71,39 @@ git add ./kube/kustomize/sync-example.yaml && \
 git commit -m 'delete example namespace' && \
 git push -u origin HEAD && \
 echo "You should see the 'sync-example' namespace deleted when reconciliation is complete"
-watch -n 1 -d 'kubectl get namespaces'
+kubectl get namespaces --watch
 ```
 
 #### Workload Rolling Upgrade
 
 Kubernetes resources may be updated by committing a change of the appropriate Kubernetes manifest to the repo and allowing the sync process to complete.
 
+##### Upgrade
+
 ```bash
 cat ./kube/kustomize/filewcount.yaml | \
-yq -r '.spec.template.spec.containers[0].image = "bldrtech/filewcount:2.0"' > |
+yq -r '.spec.template.spec.containers[0].image = "bldrtech/filewcount:2.0"' > \
 ./kube/kustomize/filewcount-new.yaml && \
 mv ./kube/kustomize/filewcount-new.yaml ./kube/kustomize/filewcount.yaml
 git add ./kube/kustomize/filewcount.yaml && \
 git commit -m 'upgrade filewcount to 2.0' && \
 git push -u origin HEAD && \
 echo "You should see the a rolling update of the filewcount pods"
-watch -n 1 -d 'kubectl get deploy,pods --namespace filewcount'
+kubectl get pods --namespace filewcount --watch
+```
+
+##### Downgrade
+
+```bash
+cat ./kube/kustomize/filewcount.yaml | \
+yq -r '.spec.template.spec.containers[0].image = "bldrtech/filewcount:1.0"' > \
+./kube/kustomize/filewcount-new.yaml && \
+mv ./kube/kustomize/filewcount-new.yaml ./kube/kustomize/filewcount.yaml
+git add ./kube/kustomize/filewcount.yaml && \
+git commit -m 'downgrade filewcount to 1.0' && \
+git push -u origin HEAD && \
+echo "You should see the a rolling update of the filewcount pods"
+kubectl get pods --namespace filewcount --watch
 ```
 
 ## Monitoring
@@ -127,14 +143,6 @@ System Events are available from the Kubernetes API. These include events create
 
 ```bash
 kubectl get events --all-namespaces
-```
-
-### Dashboard
-
-```bash
-./images/devops/scripts/forward-dashboard &
-sleep 3 && \
-open http://localhost:8082
 ```
 
 ## Testing
