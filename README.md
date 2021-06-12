@@ -1,6 +1,6 @@
 # filewcount in Kubernetes with GitOps
 
-This repo is an implementation of the [filewcount](https://hub.docker.com/r/bldrtech/filewcount) Docker container in a Kubernetes cluster with deployment via [GitOps](https://www.weave.works/technologies/gitops/) using [Flux V2](https://fluxcd.io/docs/).  This showcases the orchestration of the filewcount workload, monitoring, and management in a Kubernetes cluster provides by Kind (Kubernetes in Docker).  The GitOps deployment architecture was chosen for its declarative nature and relative lack of local dependencies.  To see how this implementation could be improved and expanded upon, please see the *Work Remaining* section below.
+This repo is an implementation of the [filewcount](https://hub.docker.com/r/bldrtech/filewcount) Docker container in a Kubernetes cluster with deployment via [GitOps](https://www.weave.works/technologies/gitops/) using [Flux V2](https://fluxcd.io/docs/).  This showcases the orchestration of the filewcount workload, monitoring, and management in a Kubernetes cluster provided by Kind (Kubernetes in Docker).  The GitOps deployment architecture was chosen for its declarative nature and relative lack of local dependencies.  To see how this implementation could be improved and expanded upon, please see the *Work Remaining* section below.
 
 ## Workload architecture
 
@@ -58,7 +58,7 @@ git add ./kube/kustomize/sync-example.yaml && \
 git commit -m 'create example namespace' && \
 git push -u origin HEAD && \
 echo "You should see the 'sync-example' namespace created when reconciliation is complete"
-watch -n 1 'kubectl get namespaces'
+watch -n 1 -d 'kubectl get namespaces'
 ```
 
 #### Resource Deletion
@@ -71,7 +71,7 @@ git add ./kube/kustomize/sync-example.yaml && \
 git commit -m 'delete example namespace' && \
 git push -u origin HEAD && \
 echo "You should see the 'sync-example' namespace deleted when reconciliation is complete"
-watch -n 1 'kubectl get namespaces'
+watch -n 1 -d 'kubectl get namespaces'
 ```
 
 #### Workload Rolling Upgrade
@@ -83,12 +83,49 @@ Kubernetes resources may be updated by committing a change of the appropriate Ku
 
 ## Monitoring
 
-- metrics
-  - Metrics in the system are scraped from Nodes, Pods, and Services by prometheus and made available for human consumption by Grafana
-- logs
-  - Application logs for currently running Pods are available from the Kubernetes API
-- events
-  - System Events are available from the Kubernetes API. These include events created by workloads running in Kubernetes.
+There are multiple mechanisms for
+### Metrics
+
+Performance metrics (cpu and memory usage) for the Pods and Nodes in the cluster are collected by `metrics-server` and are consumed by HorizontalPodAutoscalers for scaling workloads as well as made available via the Kubernetes cli:
+
+```bash
+kubectl top nodes
+kubectl top pods -A
+```
+
+Metrics in the system are scraped from Nodes, Pods, Services, and `metrics-server` by prometheus and made available for consumption by Grafana
+
+```bash
+./images/devops/scripts/forward-grafana &
+echo 'username: admin' && \
+echo 'password: prom-operator' && \
+sleep 3 && \
+open http://localhost:8081/d/flux-cluster/flux-cluster-stats?orgId=1&refresh=10s
+```
+
+Performance metrics (cpu and memory usage) for the Pods and Nodes in the cluster are collected by `metrics-server` and are consumed by HorizontalPodAutoscalers for scaling workloads as well as made available via the Kubernetes cli:
+
+```bash
+kubectl top nodes
+kubectl top pods -A
+```
+
+### Application Logs
+
+Application logs for currently running Pods are available from the Kubernetes API
+
+```bash
+# Logs for filewcount Pods
+kubectl logs --namespace filewcount --selector app=filewcount
+```
+
+### Events
+
+System Events are available from the Kubernetes API. These include events created by workloads running in Kubernetes.
+
+```bash
+kubectl get events --all-namespaces
+```
 
 ## Testing
 
