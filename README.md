@@ -1,6 +1,6 @@
 # filewcount in Kubernetes with GitOps
 
-This repo is an implementation of the [filewcount](https://hub.docker.com/r/bldrtech/filewcount) Docker container in a Kubernetes cluster with deployment via [GitOps](https://www.weave.works/technologies/gitops/) using [Flux V2](https://fluxcd.io/docs/).  This showcases the orchestration of the filewcount workload, monitoring, and management in a Kubernetes cluster provides by Kind (Kubernetes in Docker).  The GitOps deployment architecture was chosen for its declarative nature and relative lack of local dependencies   To see how this implementation could be improved and expanded upon, please see the *Work Remaining* section below.
+This repo is an implementation of the [filewcount](https://hub.docker.com/r/bldrtech/filewcount) Docker container in a Kubernetes cluster with deployment via [GitOps](https://www.weave.works/technologies/gitops/) using [Flux V2](https://fluxcd.io/docs/).  This showcases the orchestration of the filewcount workload, monitoring, and management in a Kubernetes cluster provides by Kind (Kubernetes in Docker).  The GitOps deployment architecture was chosen for its declarative nature and relative lack of local dependencies.  To see how this implementation could be improved and expanded upon, please see the *Work Remaining* section below.
 
 ## Workload architecture
 
@@ -38,7 +38,7 @@ curl -v http://localhost:8080
 
 ## Upgrades and Management
 
-This system uses GitOps for deployment of manifests to Kubernetes via a synchronization provided by Flux.  All manifests that the system relies on are continuously synced with the cluster according to their respective schedules. This synchronization means that all creation, deletion, and updates of resources in Kubernetes are controlled by the contents of this git repo.  By perfoming the desired changes locally, and then either pushing (if using trunk-based development) or creating and merging a pull request (if using github flow or similar), the flux operators in the cluster will automatically update the contents of the cluster after the git branch has been updated.
+This system uses GitOps for deployment of manifests to Kubernetes via a synchronization provided by Flux.  All manifests that the system relies on are continuously synced with the cluster according to their respective schedules. This synchronization means that all creation, deletion, and updates of resources in Kubernetes are controlled by the contents of this git repo.  By performing the desired changes locally, and then either pushing (if using trunk-based development) or creating and merging a pull request (if using github flow or similar), the flux operators in the cluster will automatically update the contents of the cluster after the git branch has been updated.
 
 ### Examples
 
