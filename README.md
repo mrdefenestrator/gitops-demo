@@ -84,8 +84,11 @@ Kubernetes resources may be updated by committing a change of the appropriate Ku
 ## Monitoring
 
 - metrics
+  - Metrics in the system are scraped from Nodes, Pods, and Services by prometheus and made available for human consumption by Grafana
 - logs
+  - Application logs for currently running Pods are available from the Kubernetes API
 - events
+  - System Events are available from the Kubernetes API. These include events created by workloads running in Kubernetes.
 
 ## Testing
 
