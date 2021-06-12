@@ -1,6 +1,10 @@
 # filewcount in Kubernetes with GitOps
 
-An implementation of the [filewcount](https://hub.docker.com/r/bldrtech/filewcount) Docker container in a Kubernetes cluster with deployment via [GitOps](https://www.weave.works/technologies/gitops/) via [Flux V2](https://fluxcd.io/docs/).  This repo showcases the orchestration of the filewcount workload, monitoring, and management in a Kubernetes cluster provides by Kind (Kubernetes in Docker).  To see how this implementation could be improved and expanded upon, please see the *Work Remaining* section below.
+This repo is an implementation of the [filewcount](https://hub.docker.com/r/bldrtech/filewcount) Docker container in a Kubernetes cluster with deployment via [GitOps](https://www.weave.works/technologies/gitops/) via [Flux V2](https://fluxcd.io/docs/).  This showcases the orchestration of the filewcount workload, monitoring, and management in a Kubernetes cluster provides by Kind (Kubernetes in Docker).  To see how this implementation could be improved and expanded upon, please see the *Work Remaining* section below.
+
+## Workload architecture
+
+The filewcount workload runs in a Kind Kubernetes cluster as a Deployment.  This Deployment has multiple replica Pods to enable rolling upgrades with zero downtime.  In addition, the Deployment is paired with a HorizontalPodAutoscaler which can automatically scale the number of Pods according to the load on the existing Pods.  A Service aggregates access to all of the Pods behind a single endpoint.  This Service is best accessed (at this time) by port forwarding the Service to the host machine using the `./images/devops/scripts/forward-filewcount` script.  Users may then access the filewcount application at [http://localhost:8080](http://localhost:8080)
 
 ## Environment
 
@@ -24,11 +28,19 @@ Tearing down the environment simply deletes the Kind Kubernetes cluster.
 ./teardown-kind
 ```
 
+## Accessing filewcount
+
+```bash
+./images/devops/scripts/forward-filewcount &
+sleep 3 && \
+curl -v http://localhost:8080
+```
+
 ## Upgrades and Management
 
 This system uses GitOps for deployment of manifests to Kubernetes via a synchronization provided by Flux.  All manifests that the system relies on are continuously synced with the cluster according to their respective schedules. This synchronization means that all creation, deletion, and updates of resources in Kubernetes are controlled by the contents of this git repo.  By perfoming the desired changes locally, and then either pushing (if using trunk-based development) or creating and merging a pull request (if using github flow or similar), the flux operators in the cluster will automatically update the contents of the cluster after the git branch has been updated.
 
-### Example
+### Examples
 
 #### Resource Creation
 
@@ -75,15 +87,26 @@ Kubernetes resources may be updated by committing a change of the appropriate Ku
 - logs
 - events
 
+## Testing
+
+Load testing was performed using the `ab` utility to perform a large volume of concurrent requests against the filewcount application.  The particular test profile can be executed with the `load-test` script.  During the execution of this script, the correct operation of the HorizontalPodAutoscaler was observed, automatically scaling the number of filewcount Pods according to the defined parameters.  The results of the load test were used to tune the Pod resource requests (which are used by Kubernetes for scheduling Pods to Nodes) and resource limits (which are used by Kubernetes to protect access to resources by other Pods).
+
 ## Work Remaining
 
-- Implement Semantic-Release to automatically version in pipeline so that releases of filewcount could be deployed to other Kubernetes clusters
+It is acknowledged that this implementation is not completely representative of a production capable system in the following ways:
+
+1. Kind is a Kubernetes distribution that is best used for rapid development of Kubernetes workloads and is not production-ready, given additional time, the Kind cluster could be replaced with an AWS EKS cluster
+2. Kind, in its use as a local development cluster is not suited to setup of ingress on a domain and generation and installation of a TLS certificate for this ingress.  Once transitioned to AWS EKS, implementation of ingress and automatic provisioning of a TLS certificate via cert-manager would be straightforward.
+3. The stateful portions of the implementation, chiefly the volumes backing the prometheus instance in the monitoring namespace, have no persistence or backup mechanism to ensure that data is not lost when the cluster is recreated or if errors occur.
+
+A rough to-do list follows:
 
 ### Security
 
 - Implement linting and resource scanning of K8s manifests in CI pipeline
 - Update credentials for Grafana to use non-default
 - Implement TLS ingress and cert-manager for auto-provisioning of certificates
+- Implement in-cluster policy framework like open-policy-agent or kyverno to ensure operational security and correctness of cluster and workload
 
 ### Infrastructure
 
