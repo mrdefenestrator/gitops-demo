@@ -156,7 +156,7 @@ Load testing was conducted using the `ab` utility to perform a large volume of c
 
 It is acknowledged that this implementation is not completely representative of a production capable system in the following ways:
 
-1. Kind is a Kubernetes distribution that is best used for rapid development of Kubernetes workloads and is not production-ready. Given additional time, the Kind cluster could be replaced with an AWS EKS cluster.
+1. Kind is a Kubernetes distribution that is best used for rapid development of Kubernetes workloads and is not production-ready. Given additional time, the Kind cluster could be replaced with another Kubernetes distribution with the author's preference being AWS EKS.
 2. Kind, in its use as a local development cluster is not suited to setup of ingress on a domain and generation and installation of a TLS certificate for this ingress.  Once transitioned to AWS EKS, implementation of ingress using an AWS ELB and automatic provisioning of a TLS certificate via cert-manager would be straightforward.
 3. The stateful portions of the implementation, chiefly the volumes backing the prometheus instance in the monitoring namespace, have no persistence or backup mechanism to ensure that data is not lost when the cluster is recreated or if errors occur.
 
