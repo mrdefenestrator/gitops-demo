@@ -103,13 +103,6 @@ sleep 3 && \
 open http://localhost:8081/d/flux-cluster/flux-cluster-stats?orgId=1&refresh=10s
 ```
 
-Performance metrics (cpu and memory usage) for the Pods and Nodes in the cluster are collected by `metrics-server` and are consumed by HorizontalPodAutoscalers for scaling workloads as well as made available via the Kubernetes cli:
-
-```bash
-kubectl top nodes
-kubectl top pods -A
-```
-
 ### Application Logs
 
 Application logs for currently running Pods are available from the Kubernetes API
@@ -125,6 +118,14 @@ System Events are available from the Kubernetes API. These include events create
 
 ```bash
 kubectl get events --all-namespaces
+```
+
+### Dashboard
+
+```bash
+./images/devops/scripts/forward-dashboard &
+sleep 3 && \
+open http://localhost:8082
 ```
 
 ## Testing
