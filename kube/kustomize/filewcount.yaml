@@ -27,7 +27,7 @@ spec:
         app: filewcount
     spec:
       containers:
-      - image: bldrtech/filewcount
+      - image: bldrtech/filewcount:1.0
         name: filewcount
         resources:
           limits:
