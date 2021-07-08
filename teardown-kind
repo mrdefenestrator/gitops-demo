@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -eu -o pipefail
 
-if kind get clusters | grep threatx; then
-  kind delete cluster --name threatx
+if kind get clusters | grep mrdefenestrator; then
+  kind delete cluster --name mrdefenestrator
 fi

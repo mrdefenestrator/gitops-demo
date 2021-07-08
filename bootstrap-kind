@@ -12,8 +12,8 @@ else
   curl -s https://fluxcd.io/install.sh | sudo bash
 fi
 
-if ! kind get clusters | grep threatx; then
-  kind create cluster --name threatx
+if ! kind get clusters | grep mrdefenestrator; then
+  kind create cluster --name mrdefenestrator
 fi
 
 ./flux-up

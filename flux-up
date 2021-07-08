@@ -3,7 +3,7 @@ set -eu -o pipefail
 
 flux bootstrap github \
   --branch=dev \
-  --owner threatxlabs \
+  --owner mrdefenestrator \
   --path=kube/kustomize \
-  --repository devops-hw-mg \
+  --repository gitops-demo \
   --token-auth
